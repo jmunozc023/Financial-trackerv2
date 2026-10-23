@@ -112,9 +112,10 @@ class Database:
         );
         """)
 
-        statement_columns = {row[1] for row in self.conn.execute("PRAGMA table_info(statements)")}
-        if "import_id" not in statement_columns:
-            self.conn.execute("ALTER TABLE statements ADD COLUMN import_id INTEGER REFERENCES statement_imports(id) ON DELETE CASCADE")
-        if "loyalty_plan" not in statement_columns:
-            self.conn.execute("ALTER TABLE statements ADD COLUMN loyalty_plan TEXT NOT NULL DEFAULT ''")
-        
+    def save_statement_imports(self, cards: list[dict], transactions: list[dict], month: str, year: str, source: str): # Save statement imports to the database, including cards and transactions
+        statement_ids = {} # Initialize an empty dictionary to store statement IDs
+        with self.conn: # Use a context manager to ensure the database connection is properly closed after the operations
+            bank = cards[0]["bank"]
+            batch = self.conn.execute("SELECT id FROM statement_imports WHERE bank = ? AND statement_month = ? AND statement_year = ? AND source = ?", (bank, month, year, source)).fetchone() # Check if a statement import already exists for the given bank, month, year, and source
+            if batch:
+                import_id = batch["id"]
