@@ -1,0 +1,4 @@
+venv312/
+.vscode/
+__pychache__/
+*.pyc
