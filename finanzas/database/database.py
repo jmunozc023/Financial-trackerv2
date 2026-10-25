@@ -112,10 +112,3 @@ class Database:
         );
         """)
 
-    def save_statement_imports(self, cards: list[dict], transactions: list[dict], month: str, year: str, source: str): # Save statement imports to the database, including cards and transactions
-        statement_ids = {} # Initialize an empty dictionary to store statement IDs
-        with self.conn: # Use a context manager to ensure the database connection is properly closed after the operations
-            bank = cards[0]["bank"]
-            batch = self.conn.execute("SELECT id FROM statement_imports WHERE bank = ? AND statement_month = ? AND statement_year = ? AND source = ?", (bank, month, year, source)).fetchone() # Check if a statement import already exists for the given bank, month, year, and source
-            if batch:
-                import_id = batch["id"]
